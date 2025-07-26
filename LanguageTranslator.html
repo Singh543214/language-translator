@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Language Translator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+       * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #e0f2f7; /* Lighter blue background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Use min-height for better content handling */
+            padding: 20px; /* Add some padding for small screens */
+        }
+
+        .translator-container {
+            background: #ffffff; /* White background for the container */
+            width: 95%;
+            max-width: 700px; /* Slightly wider max-width */
+            padding: 30px; /* Increased padding */
+            border-radius: 15px; /* More rounded corners */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+            border: 1px solid #cce7f0; /* Subtle border */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px; /* More space below heading */
+            font-size: 28px; /* Larger heading */
+            color: #2c3e50; /* Darker text color */
+            font-weight: 700;
+        }
+
+        /* Dropdowns */
+        .dropdowns {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px; /* More space below dropdowns */
+            position: relative; /* For swap button positioning */
+        }
+
+        select {
+            flex: 1; /* Allow select to grow */
+            padding: 10px 15px; /* More padding for select */
+            border-radius: 8px; /* More rounded select */
+            border: 1px solid #a7d9ee; /* Border color */
+            font-size: 16px; /* Larger font in select */
+            background-color: #f8fcff; /* Light background for select */
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-12.3%203.2-16.1%208.1-3.8%204.9-4.7%2011.6-2.9%2017.5l128%20168c4.1%205.4%2010.8%208.6%2018.2%208.6s14-3.2%2018.2-8.6l128-168c3.9-6%203-12.7-1-17.5z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 12px auto;
+            cursor: pointer;
+            margin: 0 10px; /* Space between selects and swap button */
+        }
+
+        select:first-child {
+            margin-left: 0;
+        }
+
+        select:last-child {
+            margin-right: 0;
+        }
+
+        .swap-btn {
+            background: #6a40ef; /* Purple-ish color */
+            color: white;
+            font-size: 20px; /* Larger icon */
+            border: none;
+            border-radius: 50%;
+            width: 45px; /* Larger button */
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(106, 64, 239, 0.3); /* Shadow for swap button */
+            transition: transform 0.2s ease, background 0.2s ease;
+            position: absolute; /* Position between dropdowns */
+            left: 50%;
+            transform: translate(-50%, 0);
+            z-index: 10;
+        }
+
+        .swap-btn:hover {
+            background: #5a34d0; /* Darker purple on hover */
+            transform: translate(-50%, 0) rotate(15deg); /* Slight rotation on hover */
+        }
+
+        /* Text Areas */
+        .text-area-group {
+            display: flex;
+            gap: 20px; /* Gap between text boxes */
+            margin-bottom: 25px;
+        }
+
+        .text-box {
+            flex: 1; /* Allow text boxes to grow */
+            display: flex;
+            flex-direction: column;
+            background-color: #fdfdfd; /* White background for text boxes */
+            border-radius: 10px;
+            border: 1px solid #d0e8f2;
+            overflow: hidden; /* Ensures border-radius applies to textarea */
+        }
+
+        .text-box textarea {
+            width: 100%;
+            height: 150px; /* Taller text areas */
+            padding: 15px; /* More padding */
+            font-size: 15px;
+            border: none; /* Remove individual textarea border */
+            resize: none;
+            background-color: transparent; /* Transparent background */
+            outline: none; /* Remove focus outline */
+            color: #333;
+        }
+
+        .text-box textarea::placeholder {
+            color: #999;
+        }
+
+        .text-box-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px; /* Padding for icon row */
+            background-color: #edf5f8; /* Light blue background for icon row */
+            border-top: 1px solid #d0e8f2;
+        }
+
+        .icon-btn {
+            background: transparent; /* Transparent background */
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            font-size: 20px; /* Larger icons */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background-color: #dbeaf0; /* Hover effect for icons */
+        }
+
+        /* Translate Button */
+        .translate-btn {
+            background: linear-gradient(to right, #3b82f6, #9333ea); /* Original gradient */
+            color: white;
+            padding: 12px 30px; /* More padding for button */
+            font-size: 18px; /* Larger font */
+            border: none;
+            border-radius: 25px; /* More rounded button */
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: 0.3s ease;
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3); /* Shadow for translate button */
+            font-weight: 600;
+        }
+
+        .translate-btn:hover {
+            background: linear-gradient(to right, #2563eb, #7c3aed); /* Darker gradient on hover */
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .translator-container {
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .dropdowns {
+                flex-direction: column; /* Stack dropdowns vertically */
+                align-items: stretch;
+                margin-bottom: 20px;
+            }
+
+            select {
+                width: 100%; /* Full width for dropdowns */
+                margin: 0 0 15px 0; /* Space between stacked dropdowns */
+                padding: 12px; /* Adjust padding for mobile */
+                font-size: 15px;
+            }
+
+            select:last-child {
+                margin-bottom: 0;
+            }
+
+            .swap-btn {
+                position: static; /* Position normally when stacked */
+                transform: none; /* Remove translation */
+                margin: 10px auto; /* Center button */
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .text-area-group {
+                flex-direction: column; /* Stack text areas vertically */
+                gap: 15px;
+            }
+
+            .text-box textarea {
+                height: 120px; /* Slightly shorter text areas on mobile */
+                font-size: 14px;
+            }
+
+            .icon-btn {
+                font-size: 18px; /* Slightly smaller icons on mobile */
+                padding: 6px;
+            }
+
+            .translate-btn {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        }
+
+        /* Further refinements for very small screens (e.g., less than 400px) */
+        @media (max-width: 400px) {
+            .translator-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            select {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .swap-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .text-box textarea {
+                height: 100px;
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .icon-btn {
+                font-size: 16px;
+                padding: 5px;
+            }
+
+            .translate-btn {
+                padding: 8px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="translator-container">
+        <h1>Language Translator</h1>
+
+        <div class="dropdowns">
+            <select name="from" id="fromLang"></select>
+            <button class="swap-btn" title="Swap Languages">⇄</button>
+            <select name="to" id="toLang"></select>
+        </div>
+
+        <div class="text-area-group">
+            <div class="text-box">
+                <textarea placeholder="Enter text here..." id="input"></textarea>
+                <div class="text-box-icons">
+                    <button class="icon-btn" id="speakin" title="Speak Input">💬</button>
+                    <button class="icon-btn" id="clear" title="Clear Text">❌</button>
+                </div>
+            </div>
+            <div class="text-box">
+                <textarea id="output" readonly></textarea>
+                <div class="text-box-icons">
+                    <button class="icon-btn" id="speakout" title="Speak Output">🔊</button>
+                    <button class="icon-btn" id="copyOutput" title="Copy Output">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="translate-btn">Translate Text</button>
+    </div>
+
+<script>
+  const inputText = document.getElementById("input");
+  const outputText = document.getElementById("output");
+  const translateBtn = document.querySelector(".translate-btn");
+  const speakin = document.getElementById("speakin");
+  const speakout=document.getElementById("speakout");
+  const clear=document.getElementById("clear");
+
+  const languageList = [
+  { name: "Afrikaans", code: "af" },
+  { name: "Albanian", code: "sq" },
+  { name: "Arabic", code: "ar" },
+  { name: "Armenian", code: "hy" },
+  { name: "Bengali", code: "bn" },
+  { name: "Bulgarian", code: "bg" },
+  { name: "Catalan", code: "ca" },
+  { name: "Chinese (Simplified)", code: "zh" },
+  { name: "Chinese (Traditional)", code: "zh-TW" },
+  { name: "Croatian", code: "hr" },
+  { name: "Czech", code: "cs" },
+  { name: "Danish", code: "da" },
+  { name: "Dutch", code: "nl" },
+  { name: "English", code: "en" },
+  { name: "Estonian", code: "et" },
+  { name: "Filipino", code: "tl" },
+  { name: "Finnish", code: "fi" },
+  { name: "French", code: "fr" },
+  { name: "Georgian", code: "ka" },
+  { name: "German", code: "de" },
+  { name: "Greek", code: "el" },
+  { name: "Gujarati", code: "gu" },
+  { name: "Hebrew", code: "he" },
+  { name: "Hindi", code: "hi" },
+  { name: "Hungarian", code: "hu" },
+  { name: "Icelandic", code: "is" },
+  { name: "Indonesian", code: "id" },
+  { name: "Italian", code: "it" },
+  { name: "Japanese", code: "ja" },
+  { name: "Kannada", code: "kn" },
+  { name: "Korean", code: "ko" },
+  { name: "Latvian", code: "lv" },
+  { name: "Lithuanian", code: "lt" },
+  { name: "Malay", code: "ms" },
+  { name: "Malayalam", code: "ml" },
+  { name: "Marathi", code: "mr" },
+  { name: "Nepali", code: "ne" },
+  { name: "Norwegian", code: "no" },
+  { name: "Persian", code: "fa" },
+  { name: "Polish", code: "pl" },
+  { name: "Portuguese", code: "pt" },
+  { name: "Punjabi", code: "pa" },
+  { name: "Romanian", code: "ro" },
+  { name: "Russian", code: "ru" },
+  { name: "Serbian", code: "sr" },
+  { name: "Slovak", code: "sk" },
+  { name: "Slovenian", code: "sl" },
+  { name: "Spanish", code: "es" },
+  { name: "Swahili", code: "sw" },
+  { name: "Swedish", code: "sv" },
+  { name: "Tamil", code: "ta" },
+  { name: "Telugu", code: "te" },
+  { name: "Thai", code: "th" },
+  { name: "Turkish", code: "tr" },
+  { name: "Ukrainian", code: "uk" },
+  { name: "Urdu", code: "ur" },
+  { name: "Vietnamese", code: "vi" },
+  { name: "Welsh", code: "cy" }
+];
+
+const fromDropdown = document.getElementById("fromLang");
+  const toDropdown = document.getElementById("toLang");
+
+  languageList.forEach(lang => {
+    const option1 = document.createElement("option");
+    option1.value = lang.code;
+    option1.textContent = lang.name;
+    fromDropdown.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = lang.code;
+    option2.textContent = lang.name;
+    toDropdown.appendChild(option2);
+
+  });
+  fromDropdown.value = "en"
+  toDropdown.value = "hi"
+
+
+  // Swap Languages
+document.querySelector(".swap-btn").addEventListener("click", () => {
+  const temp = fromDropdown.value;
+  fromDropdown.value = toDropdown.value;
+  toDropdown.value = temp;
+
+  
+  const tempText = inputText.value;
+  inputText.value = outputText.value;
+  outputText.value = tempText;
+});
+
+
+clear.addEventListener("click",()=>{
+    inputText.value=""
+    outputText.value=""
+     fromDropdown.value = "en"
+  toDropdown.value = "hi"
+})
+
+
+ copyOutput.addEventListener("click", () => {
+            if (outputText.value) {
+                // Use document.execCommand('copy') as navigator.clipboard.writeText() may not work due to iFrame restrictions.
+                const textarea = document.createElement('textarea');
+                textarea.value = outputText.value;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    alert("Failed to copy text. Please try again manually.");
+                }
+                document.body.removeChild(textarea);
+            }
+        });
+
+
+
+speakin.addEventListener("click", () => {
+  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = fromDropdown.value || 'en';  
+
+    recognition.onstart = () => {
+      inputText.value = "Listening...";
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      inputText.value = transcript;
+    };
+
+    recognition.onerror = (event) => {
+      inputText.value = 'Error occurred: ' + event.error;
+    };
+
+    recognition.start();
+  } else {
+    alert("Speech recognition not supported in your browser.");
+  }
+});
+
+
+ let voices = [];
+
+function populateVoiceList() {
+  voices = speechSynthesis.getVoices();
+}
+
+populateVoiceList();
+
+// If voices aren't loaded initially, wait for them
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+speakout.addEventListener("click", async() => {
+  const response = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyAeQf0d8eeHT-8urtIHRQH4c8hVktUe52E", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      input: { text: outputText.value },
+      voice: {
+        languageCode: `${toLang.value}`,
+        name: "hi-IN-Standard-A"
+      },
+      audioConfig: {
+        audioEncoding: "MP3"
+      }
+    })
+  });
+
+  const data = await response.json();
+  const audioContent = data.audioContent;
+
+  // Create audio element and play
+  const audio = new Audio("data:audio/mp3;base64," + audioContent);
+  audio.play();
+});
+
+
+
+
+  // Translate Function
+  translateBtn.addEventListener("click", async () => {
+    const fromLang = fromDropdown.value.toLowerCase();
+    const toLang = toDropdown.value.toLowerCase();
+    const query = inputText.value;
+
+    const url = `https://free-google-translator.p.rapidapi.com/external-api/free-google-translator?from=${fromLang}&to=${toLang}&query=${encodeURIComponent(query)}`;
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'x-rapidapi-key': 'e877beadc9msh297fea542b4d09fp10cc8ajsn376528f78c77',
+        'x-rapidapi-host': 'free-google-translator.p.rapidapi.com',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ translate: 'rapidapi' })
+    };
+
+    try {
+      outputText.value = "Translating...";
+      const response = await fetch(url, options);
+      const result = await response.json();
+      outputText.value = result.translation;
+      speaks = result.translation;
+    } catch (error) {
+      outputText.value = "Translation failed.";
+      console.error(error);
+    }
+  });
+
+  
+</script>
+
+</body>
+</html>
